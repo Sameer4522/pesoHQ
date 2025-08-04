@@ -1,1 +1,5 @@
 @import "tailwindcss";
+
+.ag-header-cell-label {
+	justify-content: start;
+}
