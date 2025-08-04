@@ -1,5 +1,11 @@
+import VirtualTable from "../virtual-table";
+
 const MainLayout = () => {
-  return <div>MainLayout</div>;
+	return (
+		<main>
+			<VirtualTable />
+		</main>
+	);
 };
 
 export default MainLayout;
