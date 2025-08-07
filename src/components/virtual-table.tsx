@@ -32,19 +32,28 @@ const VirtualTable = () => {
 	const gridBodyRef = useRef<HTMLDivElement | null>(null);
 	const scrollTopBeforeUpdate = useRef<number>(0);
 
-	const [page, setPage] = useState<number>(1);
+	const [pagination, setPagination] = useState<{
+		page: number;
+		size: number;
+	}>({
+		page: 1,
+		size: 25,
+	});
 	const [allRows, setAllRows] = useState<any[]>([]);
 	const [columns, setColumns] = useState<any[]>([]);
 
 	const { data, isFetching } = useQuery({
-		queryKey: ["mockData", page],
+		queryKey: ["mockData", pagination.page, pagination.size],
 		queryFn: async () => {
-			const response = await MOCK_DATA_SERVICE.getMockData(page);
+			const response = await MOCK_DATA_SERVICE.getMockData(
+				pagination.page,
+				pagination.size
+			);
 			return response?.data ?? { columns: [], data: [] };
 		},
 		refetchInterval: 6000,
 		refetchIntervalInBackground: true,
-		enabled: !!page,
+		enabled: !!pagination.page,
 	});
 
 	useEffect(() => {
@@ -59,10 +68,7 @@ const VirtualTable = () => {
 
 	useEffect(() => {
 		if (data?.data?.length) {
-			setAllRows(prev => {
-				const newRows = [...prev, ...data.data];
-				return newRows;
-			});
+			setAllRows(data.data);
 
 			if (!columns.length && data.columns?.length) {
 				setColumns(data.columns);
@@ -83,7 +89,10 @@ const VirtualTable = () => {
 		const { scrollTop, scrollHeight, clientHeight } = gridBody;
 
 		if (scrollTop + clientHeight >= scrollHeight - 50) {
-			setPage(prev => prev + 1);
+			setPagination(prev => ({
+				page: prev.page + 1,
+				size: prev.size + 25,
+			}));
 		}
 	};
 
