@@ -31,11 +31,11 @@ const generatePlaceholderData = () => {
 const VirtualTable = () => {
 	const gridRef = useRef<any>(null);
 	const gridBodyRef = useRef<HTMLDivElement | null>(null);
+	const scrollTopBeforeUpdate = useRef<number>(0);
+
 	const [page, setPage] = useState<number>(1);
 	const [allRows, setAllRows] = useState<any[]>([]);
 	const [columns, setColumns] = useState<any[]>([]);
-
-	const scrollTopBeforeUpdate = useRef<number>(0);
 
 	const { data, isFetching } = useQuery({
 		queryKey: ["mockData", page],
