@@ -13,7 +13,7 @@ const normalizeResponse = (response: AxiosResponse) => {
 			(response.status === 200
 				? "Request successful"
 				: "Unable to process request. Try again later!"),
-		data: response.data?.data || response.data || null,
+		data: response.data || null,
 		status: response.status,
 		headers: response.headers,
 		fullResponse: response.data,

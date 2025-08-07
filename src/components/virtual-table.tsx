@@ -2,15 +2,25 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { AgGridReact } from "ag-grid-react";
 import { useRef } from "react";
-import { generateMockData } from "../data/mock-data";
+import { MOCK_DATA_SERVICE } from "../api/services/mock_data_service";
 import { useFetchQuery } from "../hooks/use-fetch-query";
+
+const fetchData = async () => {
+	try {
+		const { data } = await MOCK_DATA_SERVICE.getMockData();
+		return data || { columns: [], data: [] };
+	} catch (error) {
+		console.error("Error fetching mock data:", error);
+		return { columns: [], data: [] };
+	}
+};
 
 const VirtualTable = () => {
 	const gridRef = useRef(null);
 
 	const { data, isLoading } = useFetchQuery({
 		queryKey: ["mockData"],
-		queryFn: () => Promise.resolve(generateMockData(100000, 100)),
+		queryFn: () => fetchData(),
 	});
 
 	if (isLoading || !data) {
