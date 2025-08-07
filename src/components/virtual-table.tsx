@@ -1,10 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
 import { themeMaterial } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-material.css";
 import { AgGridReact } from "ag-grid-react";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MOCK_DATA_SERVICE } from "../api/services/mock_data_service";
-import { useFetchQuery } from "../hooks/use-fetch-query";
 
 const LoadingCellRenderer = () => (
 	<div className="p-4 w-full animate-pulse rounded bg-gray-300" />
@@ -25,41 +25,84 @@ const generatePlaceholderData = () => {
 		return row;
 	});
 
-	return { columns, data };
+	return { columns, data, totalSize: data.length };
 };
 
 const VirtualTable = () => {
-	const gridRef = useRef(null);
+	const gridRef = useRef<any>(null);
+	const gridBodyRef = useRef<HTMLDivElement | null>(null);
 	const [page, setPage] = useState<number>(1);
+	const [allRows, setAllRows] = useState<any[]>([]);
+	const [columns, setColumns] = useState<any[]>([]);
 
-	let columns, rowData;
+	const scrollTopBeforeUpdate = useRef<number>(0);
 
-	const { data, isLoading } = useFetchQuery({
-		queryKey: ["mockData"],
+	const { data, isFetching } = useQuery({
+		queryKey: ["mockData", page],
 		queryFn: async () => {
-			try {
-				const { data } = await MOCK_DATA_SERVICE.getMockData(page);
-				return data || { columns: [], data: [] };
-			} catch (error) {
-				console.error("Error fetching mock data:", error);
-				return { columns: [], data: [] };
-			}
+			const response = await MOCK_DATA_SERVICE.getMockData(page);
+			return response?.data ?? { columns: [], data: [] };
 		},
 		refetchInterval: 3000,
 		refetchIntervalInBackground: true,
-		initialData: ({ columns, data: rowData } = generatePlaceholderData()),
+		enabled: !!page,
 	});
 
-	columns = data.columns;
-	rowData = data.data;
+	useEffect(() => {
+		const gridBody = document.querySelector(".ag-body-viewport");
+		gridBodyRef.current = gridBody as HTMLDivElement;
+		if (gridBodyRef.current) {
+			scrollTopBeforeUpdate.current = gridBodyRef.current.scrollTop;
+		}
+	}, [isFetching]);
+
+	useEffect(() => {
+		if (data?.data?.length) {
+			setAllRows(prev => {
+				const newRows = [...prev, ...data.data];
+				return newRows;
+			});
+
+			if (!columns.length && data.columns?.length) {
+				setColumns(data.columns);
+			}
+		}
+	}, [data]);
+
+	useEffect(() => {
+		if (gridBodyRef.current) {
+			gridBodyRef.current.scrollTop = scrollTopBeforeUpdate.current;
+		}
+	}, [allRows]);
+
+	const handleBodyScrollEnd = () => {
+		const gridBody = gridBodyRef.current;
+		if (!gridBody || isFetching) return;
+
+		const { scrollTop, scrollHeight, clientHeight } = gridBody;
+
+		if (scrollTop + clientHeight >= scrollHeight - 50) {
+			setPage(prev => prev + 1);
+		}
+	};
+
+	const memoizedColumns = useMemo(() => {
+		if (columns.length > 0) return columns;
+		return generatePlaceholderData().columns;
+	}, [columns]);
+
+	const memoizedRowData = useMemo(() => {
+		if (allRows.length > 0) return allRows;
+		return generatePlaceholderData().data;
+	}, [allRows]);
 
 	return (
 		<div className="h-dvh w-full overflow-hidden p-2 ag-theme-material">
 			<AgGridReact
 				ref={gridRef}
 				theme={themeMaterial}
-				columnDefs={columns}
-				rowData={rowData}
+				columnDefs={memoizedColumns}
+				rowData={memoizedRowData}
 				defaultColDef={{
 					resizable: true,
 					sortable: true,
@@ -68,8 +111,8 @@ const VirtualTable = () => {
 				}}
 				rowHeight={32}
 				headerHeight={36}
-				rowBuffer={10}
 				domLayout="normal"
+				onBodyScrollEnd={handleBodyScrollEnd}
 			/>
 		</div>
 	);
