@@ -56,6 +56,7 @@ const VirtualTable = () => {
 		enabled: !!pagination.page,
 	});
 
+	// to keep track of the scroll position before render
 	useEffect(() => {
 		const gridBody = document.querySelector(".ag-body-viewport");
 
@@ -76,6 +77,7 @@ const VirtualTable = () => {
 		}
 	}, [data]);
 
+	//restore scroll position after data update
 	useEffect(() => {
 		if (gridBodyRef.current) {
 			gridBodyRef.current.scrollTop = scrollTopBeforeUpdate.current;
