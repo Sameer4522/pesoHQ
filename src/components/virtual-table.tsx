@@ -29,7 +29,6 @@ const generatePlaceholderData = () => {
 };
 
 const VirtualTable = () => {
-	const gridRef = useRef<any>(null);
 	const gridBodyRef = useRef<HTMLDivElement | null>(null);
 	const scrollTopBeforeUpdate = useRef<number>(0);
 
@@ -43,7 +42,7 @@ const VirtualTable = () => {
 			const response = await MOCK_DATA_SERVICE.getMockData(page);
 			return response?.data ?? { columns: [], data: [] };
 		},
-		refetchInterval: 3000,
+		refetchInterval: 6000,
 		refetchIntervalInBackground: true,
 		enabled: !!page,
 	});
@@ -99,7 +98,6 @@ const VirtualTable = () => {
 	return (
 		<div className="h-dvh w-full overflow-hidden p-2 ag-theme-material">
 			<AgGridReact
-				ref={gridRef}
 				theme={themeMaterial}
 				columnDefs={memoizedColumns}
 				rowData={memoizedRowData}
