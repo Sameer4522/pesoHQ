@@ -147,8 +147,7 @@ const VirtualTable = () => {
 				/>
 			</div>
 
-			<div className="w-64 bg-gray-100 border-l border-gray-300 p-4 text-sm font-mono">
-				<h2 className="font-bold mb-4 text-base">Debug Panel</h2>
+			<div className="w-64 bg-gray-100 border-l border-gray-300 px-4 py-2 text-sm font-mono">
 				<ul className="space-y-2">
 					<li>Columns Mounted: {metrics.mountedColumns}</li>
 					<li>Rows Mounted: {metrics.mountedRows}</li>
