@@ -101,7 +101,7 @@ const VirtualTable = () => {
 			if (!gridApi) return;
 
 			const renderedRows = gridApi.getRenderedNodes().length;
-			const colCount = columns.length - 1;
+			const colCount = Math.max(columns.length - 1, 0);
 
 			setMetrics({
 				mountedColumns: colCount,
