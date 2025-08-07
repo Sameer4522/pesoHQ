@@ -21,6 +21,8 @@ const VirtualTable = () => {
 	const { data, isLoading } = useFetchQuery({
 		queryKey: ["mockData"],
 		queryFn: () => fetchData(),
+		refetchInterval: 3000,
+		refetchIntervalInBackground: true,
 	});
 
 	if (isLoading || !data) {
