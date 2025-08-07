@@ -6,16 +6,18 @@ import { useRef, useState } from "react";
 import { MOCK_DATA_SERVICE } from "../api/services/mock_data_service";
 import { useFetchQuery } from "../hooks/use-fetch-query";
 
+const LoadingCellRenderer = () => (
+	<div className="p-4 w-full animate-pulse rounded bg-gray-300" />
+);
+
 const generatePlaceholderData = () => {
 	const columns = Array.from({ length: 10 }, (_, index) => ({
 		headerName: `Column ${index + 1}`,
 		field: `col${index + 1}`,
-		cellRenderer: (
-			<div className="p-4 w-full animate-pulse rounded bg-gray-300" />
-		),
+		cellRenderer: LoadingCellRenderer,
 	}));
 
-	const data = Array.from({ length: 20 }, () => {
+	const data = Array.from({ length: 25 }, () => {
 		const row: Record<string, null> = {};
 		columns.forEach(col => {
 			row[col.field] = null;
