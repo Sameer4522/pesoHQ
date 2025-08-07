@@ -45,11 +45,12 @@ const VirtualTable = () => {
 	const { data, isFetching } = useQuery({
 		queryKey: ["mockData", pagination.page, pagination.size],
 		queryFn: async () => {
-			const response = await MOCK_DATA_SERVICE.getMockData(
+			const { data } = await MOCK_DATA_SERVICE.getMockData(
 				pagination.page,
 				pagination.size
 			);
-			return response?.data ?? { columns: [], data: [] };
+
+			return data ?? { columns: [], data: [] };
 		},
 		refetchInterval: 6000,
 		refetchIntervalInBackground: true,
