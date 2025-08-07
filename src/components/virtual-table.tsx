@@ -49,7 +49,9 @@ const VirtualTable = () => {
 
 	useEffect(() => {
 		const gridBody = document.querySelector(".ag-body-viewport");
+
 		gridBodyRef.current = gridBody as HTMLDivElement;
+
 		if (gridBodyRef.current) {
 			scrollTopBeforeUpdate.current = gridBodyRef.current.scrollTop;
 		}
