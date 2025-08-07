@@ -1,5 +1,6 @@
+import { themeMaterial } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import "ag-grid-community/styles/ag-theme-material.css";
 import { AgGridReact } from "ag-grid-react";
 import { useRef } from "react";
 import { MOCK_DATA_SERVICE } from "../api/services/mock_data_service";
@@ -15,6 +16,28 @@ const fetchData = async () => {
 	}
 };
 
+const LoadingCell = () => {
+	return <div className="p-4 w-full animate-pulse rounded bg-gray-300" />;
+};
+
+const generatePlaceholderData = () => {
+	const columns = Array.from({ length: 10 }, (_, index) => ({
+		headerName: `Column ${index + 1}`,
+		field: `col${index + 1}`,
+		cellRenderer: LoadingCell,
+	}));
+
+	const data = Array.from({ length: 20 }, () => {
+		const row: Record<string, null> = {};
+		columns.forEach(col => {
+			row[col.field] = null;
+		});
+		return row;
+	});
+
+	return { columns, data };
+};
+
 const VirtualTable = () => {
 	const gridRef = useRef(null);
 
@@ -25,20 +48,20 @@ const VirtualTable = () => {
 		refetchIntervalInBackground: true,
 	});
 
+	let columns, rowData;
+
 	if (isLoading || !data) {
-		return (
-			<div className="p-6 text-center text-gray-500 text-lg">
-				Loading table...
-			</div>
-		);
+		({ columns, data: rowData } = generatePlaceholderData());
+	} else {
+		columns = data.columns;
+		rowData = data.data;
 	}
 
-	const { columns, data: rowData } = data;
-
 	return (
-		<div className="h-dvh w-full overflow-hidden p-2 ag-theme-alpine">
+		<div className="h-dvh w-full overflow-hidden p-2 ag-theme-material">
 			<AgGridReact
 				ref={gridRef}
+				theme={themeMaterial}
 				columnDefs={columns}
 				rowData={rowData}
 				defaultColDef={{
