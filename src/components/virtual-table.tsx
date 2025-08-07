@@ -2,7 +2,7 @@ import { themeMaterial } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-material.css";
 import { AgGridReact } from "ag-grid-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { MOCK_DATA_SERVICE } from "../api/services/mock_data_service";
 import { useFetchQuery } from "../hooks/use-fetch-query";
 
@@ -26,24 +26,23 @@ const generatePlaceholderData = () => {
 	return { columns, data };
 };
 
-const fetchData = async () => {
-	try {
-		const { data } = await MOCK_DATA_SERVICE.getMockData();
-		return data || { columns: [], data: [] };
-	} catch (error) {
-		console.error("Error fetching mock data:", error);
-		return { columns: [], data: [] };
-	}
-};
-
 const VirtualTable = () => {
 	const gridRef = useRef(null);
+	const [page, setPage] = useState<number>(1);
 
 	let columns, rowData;
 
 	const { data, isLoading } = useFetchQuery({
 		queryKey: ["mockData"],
-		queryFn: () => fetchData(),
+		queryFn: async () => {
+			try {
+				const { data } = await MOCK_DATA_SERVICE.getMockData(page);
+				return data || { columns: [], data: [] };
+			} catch (error) {
+				console.error("Error fetching mock data:", error);
+				return { columns: [], data: [] };
+			}
+		},
 		refetchInterval: 3000,
 		refetchIntervalInBackground: true,
 		initialData: ({ columns, data: rowData } = generatePlaceholderData()),
